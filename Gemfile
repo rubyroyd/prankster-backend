@@ -1,7 +1,8 @@
 source "https://rubygems.org"
 
-gem "sinatra"
 gem "bundler"
-gem "rack-contrib"
 gem "rack"
-gem "json"
+gem "sinatra"
+gem "sinatra-activerecord"
+gem "postgresql"
+gem "rake"
