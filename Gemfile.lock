@@ -1,0 +1,29 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    json (2.3.0)
+    mustermann (1.0.3)
+    rack (2.0.8)
+    rack-contrib (2.1.0)
+      rack (~> 2.0)
+    rack-protection (2.0.7)
+      rack
+    sinatra (2.0.7)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.7)
+      tilt (~> 2.0)
+    tilt (2.0.10)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler
+  json
+  rack
+  rack-contrib
+  sinatra
+
+BUNDLED WITH
+   1.17.3
