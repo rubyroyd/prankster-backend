@@ -15,6 +15,7 @@ GEM
     concurrent-ruby (1.1.5)
     i18n (1.7.0)
       concurrent-ruby (~> 1.0)
+    json (2.3.0)
     minitest (5.13.0)
     mustermann (1.0.3)
     pg (1.2.0)
@@ -43,6 +44,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
+  json
   postgresql
   rack
   rake

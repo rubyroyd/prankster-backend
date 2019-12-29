@@ -2,6 +2,9 @@ require "sinatra"
 require "./db/models.rb"
 require "./app_ext.rb"
 
+before do
+  content_type 'application/json'
+end
 
 not_found do
   status 404
@@ -103,7 +106,7 @@ def success(statusCode, response = {})
   result["response"] = response
   status statusCode
 
-  erb :json, :locals => {:result => result}
+  JSON.pretty_generate(result)
 end
 
 def error(statusCode, errorDescription = "")
@@ -111,5 +114,5 @@ def error(statusCode, errorDescription = "")
   result["error"] = errorDescription
   status statusCode
 
-  erb :json, :locals => {:result => result}
+  JSON.pretty_generate(result)
 end
