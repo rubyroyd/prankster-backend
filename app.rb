@@ -49,6 +49,14 @@ post "/authorise" do
   return success(200, response_json)
 end
 
+post "/test" do
+  param1 = params[:param1]
+  param2 = params[:param2]
+  
+  response_json = { "p1" => param1, "p2" => param2 }
+  success(201, response_json)
+end
+
 post "/accounts/children" do
   token = params[:token]
   name = params[:name]
