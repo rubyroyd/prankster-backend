@@ -4,120 +4,70 @@ require "./db/models.rb"
 require "./app_ext.rb"
 
 get "/devices" do
-  content_type :json
-
-  json = Device.all.as_json(:except => [ :id, :created_at])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  success(200, Device.all.as_json)
 end
 get "/accounts" do
-  content_type :json
+  success(200, Account.all.as_json)
+end
+delete "/accounts" do
+  token = params[:token]
+  id = params[:id]
+  device = Device.find_by(token: token)
+  if !device
+    return error(401, "unauthorised")
+  end
 
-  json = Account.all.as_json(:except => [ :id, :created_at, :token])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  account = Account.find_by(id: id)
+  if !account
+    return error(200, "not exist")
+  end
+
+  account.child&.destroy
+  account.parent&.destroy
+  account.destroy
+  success(201, "OK")
 end
 get "/children" do
-  content_type :json
-
-  json = Child.all.as_json(:except => [ :id, :created_at])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  success(200, Child.all.as_json)
 end
 get "/parents" do
-  content_type :json
-
-  json = Parent.all.as_json(:except => [ :id, :created_at])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  success(200, Parent.all.as_json)
 end
 
 post "/authorise" do
-  content_type :json
-
   device_id = params[:device_id]
   device = Device.find_by(device_id: device_id)
   if !device
-    device = Device.build_new(device_id)
+    device = Device.new_token(device_id)
     device.save
   end
   
-  json = device.as_json(:except => [ :id, :created_at])
-  if account = device.account
-    if account.parent
-      json.account_role = "parent"
-    elsif account.child
-      json.account_role = "child"
-    end
-  end
+  response_json = device.as_json
+  response_json["account_id"] = device.account&.id
+  response_json["account_role"] = device.account&.account_role
 
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  return success(200, response_json)
 end
 
-get "/account" do
-  content_type :json
-
-  device_id = params[:id]
-  device = Device.find_by(device_id: device_id)
+post "/accounts/children" do
+  token = params[:token]
+  name = params[:name]
+  device = Device.find_by(token: token)
   if !device
-    device = Device.build_new(device_id)
-    device.save
-  end
-  
-  json = device.as_json(:except => [ :id, :created_at])
-  if account = device.account
-    if account.parent
-      json.account_role = "parent"
-    elsif account.child
-      json.account_role = "child"
-    end
+    return error(401, "unauthorised")
   end
 
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
-end
-
-put "/child" do
-  content_type :json
-
-  token = params[:token]
-  if !validDeviceIdAndToken(device_id, token)
-    return
-  end
-  name = params[:name]
-
-  if device.account != nil
-    status 403
-    put "Device already has account"
-    return
+  if device.account
+    return error(403, "child already created")
   end
 
-  child = Child.build_new(device, name)
+  child = Child.new_(device, name)
   child.save
-
-  json = child.as_json(:except => [ :id, :created_at], :include => [ :account ])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  response_json = child.as_json
+  success(201, child)
 end
 
-put "/parents" do
-  content_type :json
-
+post "/accounts/parents" do
   token = params[:token]
   if !validDeviceIdAndToken(device_id, token)
     return
@@ -130,17 +80,33 @@ put "/parents" do
     return
   end
 
-  parent = Parent.build_new(device, name)
+  parent = Parent.new_(device, name)
   parent.save
-
-  json = parent.as_json(:except => [ :id, :created_at])
-  json_string = JSON.pretty_generate(json)
-  puts json_string
-  status 200
-  json_string
+  response_json = parent.as_json
+  success(201, parent)
 end
 
 not_found do
   status 404
   erb :default
+end
+
+def success(statusCode, response = {})
+  result = {"status" => "ok"}
+  result["response"] = response
+  status statusCode
+
+  pretty_response = JSON.pretty_generate(result)
+  puts pretty_response
+  return pretty_response
+end
+
+def error(statusCode, errorDescription = "")
+  result = {"status" => "error"}
+  result["error"] = errorDescription
+  status statusCode
+
+  pretty_response = JSON.pretty_generate(result)
+  puts pretty_response
+  return pretty_response
 end

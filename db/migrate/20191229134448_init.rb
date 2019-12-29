@@ -21,7 +21,7 @@ class Init < ActiveRecord::Migration[6.0]
       t.references :region
     end
 
-    create_table :childs do |t|
+    create_table :children do |t|
       t.belongs_to :account
       t.references :parent
 

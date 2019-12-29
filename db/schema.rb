@@ -25,7 +25,7 @@ ActiveRecord::Schema.define(version: 2019_12_29_134448) do
     t.index ["parent_id"], name: "index_accounts_on_parent_id"
   end
 
-  create_table "childs", force: :cascade do |t|
+  create_table "children", force: :cascade do |t|
     t.bigint "account_id"
     t.bigint "parent_id"
     t.bigint "region_status_id"
@@ -33,10 +33,10 @@ ActiveRecord::Schema.define(version: 2019_12_29_134448) do
     t.float "last_location_lat"
     t.float "last_location_long"
     t.datetime "last_location_timestamp"
-    t.index ["account_id"], name: "index_childs_on_account_id"
-    t.index ["parent_id"], name: "index_childs_on_parent_id"
-    t.index ["region_setting_id"], name: "index_childs_on_region_setting_id"
-    t.index ["region_status_id"], name: "index_childs_on_region_status_id"
+    t.index ["account_id"], name: "index_children_on_account_id"
+    t.index ["parent_id"], name: "index_children_on_parent_id"
+    t.index ["region_setting_id"], name: "index_children_on_region_setting_id"
+    t.index ["region_status_id"], name: "index_children_on_region_status_id"
   end
 
   create_table "devices", force: :cascade do |t|

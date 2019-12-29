@@ -2,20 +2,38 @@ require "sinatra/activerecord"
 require "securerandom"
 
 class Device < ActiveRecord::Base
-  self.primary_key = "device_id"
   has_one :account
 
-  def self.build_new(device_id)
+  def self.new_token(device_id)
     device = Device.new
     device.device_id = device_id
     device.token = SecureRandom.uuid
     return device
   end
+
+  def as_json(*)
+    super.except("created_at", "id")
+  end
 end
 
 class Account < ActiveRecord::Base
+  has_one :device
   has_one :parent
   has_one :child
+
+  def account_role?
+    if parent
+      return "parent"
+    elsif child
+      return "child"
+    end
+  end
+
+  def as_json(*)
+    super.except("created_at", "child_id", "parent_id").tap do |hash|
+      hash["account_role"] = account_role?
+    end
+  end
 end
 
 class Parent < ActiveRecord::Base
@@ -23,7 +41,7 @@ class Parent < ActiveRecord::Base
   has_many :child
   has_many :region
 
-  def self.build_new(device, name)
+  def self.new_(device, name)
     parent = Parent.new
 
     account = Account.new
@@ -34,6 +52,13 @@ class Parent < ActiveRecord::Base
 
     return parent
   end
+
+  def as_json(*)
+    super.except("created_at", "id").tap do |hash|
+      hash["account_id"] = account.id
+      hash["name"] = account.name
+    end
+  end
 end
 
 class Child < ActiveRecord::Base
@@ -43,7 +68,8 @@ class Child < ActiveRecord::Base
   has_many :region_status
   has_many :region_setting
 
-  def self.build_new(device, name)
+
+  def self.new_(device, name)
     child = Child.new
 
     account = Account.new
@@ -53,6 +79,13 @@ class Child < ActiveRecord::Base
     child.account = account
 
     return child
+  end
+
+  def as_json(*)
+    super.except("created_at", "id").tap do |hash|
+      hash["account_id"] = account.id
+      hash["name"] = account.name
+    end
   end
 end
 
