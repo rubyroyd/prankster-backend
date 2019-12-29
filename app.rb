@@ -1,7 +1,19 @@
 require "sinatra"
-require "json"
 require "./db/models.rb"
 require "./app_ext.rb"
+
+
+not_found do
+  status 404
+  erb :not_found
+end
+post "/test" do
+  param1 = params[:param1]
+  param2 = params[:param2]
+  
+  response_json = { "p1" => param1, "p2" => param2 }
+  success(201, response_json)
+end
 
 get "/devices" do
   success(200, Device.all.as_json)
@@ -49,14 +61,6 @@ post "/authorise" do
   return success(200, response_json)
 end
 
-post "/test" do
-  param1 = params[:param1]
-  param2 = params[:param2]
-  
-  response_json = { "p1" => param1, "p2" => param2 }
-  success(201, response_json)
-end
-
 post "/accounts/children" do
   token = params[:token]
   name = params[:name]
@@ -94,19 +98,12 @@ post "/accounts/parents" do
   success(201, response_json)
 end
 
-not_found do
-  status 404
-  erb :default
-end
-
 def success(statusCode, response = {})
   result = {"status" => "ok"}
   result["response"] = response
   status statusCode
 
-  pretty_response = JSON.pretty_generate(result)
-  puts pretty_response
-  return pretty_response
+  erb :json, :locals => {:result => result}
 end
 
 def error(statusCode, errorDescription = "")
@@ -114,7 +111,5 @@ def error(statusCode, errorDescription = "")
   result["error"] = errorDescription
   status statusCode
 
-  pretty_response = JSON.pretty_generate(result)
-  puts pretty_response
-  return pretty_response
+  erb :json, :locals => {:result => result}
 end
