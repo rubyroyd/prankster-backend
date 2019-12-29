@@ -64,7 +64,7 @@ post "/accounts/children" do
   child = Child.new_(device, name)
   child.save
   response_json = child.as_json
-  success(201, child)
+  success(201, response_json)
 end
 
 post "/accounts/parents" do
@@ -83,7 +83,7 @@ post "/accounts/parents" do
   parent = Parent.new_(device, name)
   parent.save
   response_json = parent.as_json
-  success(201, parent)
+  success(201, response_json)
 end
 
 not_found do
