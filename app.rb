@@ -84,21 +84,8 @@ end
 
 post "/accounts/parents/new" do
   token = params[:token]
-  if !validDeviceIdAndToken(device_id, token)
-    return
-  end
   name = params[:name]
-
-  if device.account != nil
-    status 403
-    put "Device already has account"
-    return
-  end
-
-  parent = Parent.new_(device, name)
-  parent.save
-  response_json = parent.as_json
-  success(201, response_json)
+  error(403, "TODO")
 end
 
 def success(statusCode, response = {})
