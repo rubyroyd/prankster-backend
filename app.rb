@@ -64,7 +64,7 @@ post "/authorise" do
   return success(200, response_json)
 end
 
-post "/accounts/children" do
+post "/accounts/children/new" do
   token = params[:token]
   name = params[:name]
   device = Device.find_by(token: token)
@@ -82,7 +82,7 @@ post "/accounts/children" do
   success(201, response_json)
 end
 
-post "/accounts/parents" do
+post "/accounts/parents/new" do
   token = params[:token]
   if !validDeviceIdAndToken(device_id, token)
     return
