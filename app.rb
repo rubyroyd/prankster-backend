@@ -106,7 +106,9 @@ def success(statusCode, response = {})
   result["response"] = response
   status statusCode
 
-  JSON.pretty_generate(result)
+  pretty_result = JSON.pretty_generate(result)
+  puts pretty_result
+  pretty_result
 end
 
 def error(statusCode, errorDescription = "")
@@ -114,5 +116,7 @@ def error(statusCode, errorDescription = "")
   result["error"] = errorDescription
   status statusCode
 
-  JSON.pretty_generate(result)
+  pretty_result = JSON.pretty_generate(result)
+  puts pretty_result
+  pretty_result
 end
