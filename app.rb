@@ -95,6 +95,7 @@ def success(statusCode, response = {})
 
   pretty_result = JSON.pretty_generate(result)
   puts pretty_result
+  content_type :json
   pretty_result
 end
 
@@ -105,5 +106,6 @@ def error(statusCode, errorDescription = "")
 
   pretty_result = JSON.pretty_generate(result)
   puts pretty_result
+  content_type :json
   pretty_result
 end
