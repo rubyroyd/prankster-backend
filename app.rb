@@ -42,15 +42,20 @@ delete "/accounts" do
   account.destroy
   success(201, "OK")
 end
-get "/children" do
+get "/accounts/children" do
   success(200, Child.all.as_json)
 end
-get "/parents" do
+get "/accounts/parents" do
   success(200, Parent.all.as_json)
 end
 
 post "/authorise" do
   device_id = params[:device_id]
+
+  if !device_id
+    return error(500, "no device id")
+  end
+  
   device = Device.find_by(device_id: device_id)
   if !device
     device = Device.new_token(device_id)
@@ -59,7 +64,7 @@ post "/authorise" do
   
   response_json = device.as_json
   response_json["account_id"] = device.account&.id
-  response_json["account_role"] = device.account&.account_role
+  response_json["account_type"] = device.account&.account_type
 
   return success(200, response_json)
 end
@@ -73,7 +78,7 @@ post "/accounts/children/new" do
   end
 
   if device.account
-    return error(403, "child already created")
+    return error(403, "account already created")
   end
 
   child = Child.new_(device, name)
@@ -85,7 +90,19 @@ end
 post "/accounts/parents/new" do
   token = params[:token]
   name = params[:name]
-  error(403, "TODO")
+  device = Device.find_by(token: token)
+  if !device
+    return error(401, "unauthorised")
+  end
+
+  if device.account
+    return error(403, "account already created")
+  end
+
+  child = Parent.new_(device, name)
+  child.save
+  response_json = child.as_json
+  success(201, response_json)
 end
 
 def success(statusCode, response = {})
@@ -95,6 +112,7 @@ def success(statusCode, response = {})
 
   pretty_result = JSON.pretty_generate(result)
   puts pretty_result
+  content_type :json
   pretty_result
 end
 
@@ -105,5 +123,6 @@ def error(statusCode, errorDescription = "")
 
   pretty_result = JSON.pretty_generate(result)
   puts pretty_result
+  content_type :json
   pretty_result
 end

@@ -21,7 +21,7 @@ class Account < ActiveRecord::Base
   has_one :parent
   has_one :child
 
-  def account_role?
+  def account_type?
     if parent
       return "parent"
     elsif child
@@ -31,7 +31,7 @@ class Account < ActiveRecord::Base
 
   def as_json(*)
     super.except("created_at", "child_id", "parent_id").tap do |hash|
-      hash["account_role"] = account_role?
+      hash["account_type"] = account_type?
     end
   end
 end
