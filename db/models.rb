@@ -12,8 +12,9 @@ class Device < ActiveRecord::Base
   end
 
   def as_json(*)
-    super(except: [:account_id, :created_at, :id],
-      include: { account: {only: :id, methods: :type}})
+    result = super(except: [:account_id, :created_at, :id])
+    result["account"] = account ? account.as_json : nil
+    result
   end
 end
 
@@ -33,7 +34,7 @@ class Account < ActiveRecord::Base
   end
 
   def as_json(*)
-    super(except: [:created_at, :child_id, :parent_id], methods: :type)
+    super(except: [:device_id, :created_at, :child_id, :parent_id], methods: :type)
   end
 end
 
