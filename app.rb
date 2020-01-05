@@ -61,12 +61,8 @@ post "/authorise" do
     device = Device.new_token(device_id)
     device.save
   end
-  
-  response_json = device.as_json
-  response_json["account_id"] = device.account&.id
-  response_json["account_type"] = device.account&.account_type?
 
-  return success(200, response_json)
+  success(200, device.as_json)
 end
 
 post "/accounts/children/new" do
@@ -83,8 +79,8 @@ post "/accounts/children/new" do
 
   child = Child.new_(device, name)
   child.save
-  response_json = child.as_json
-  success(201, response_json)
+  
+  success(201, child.as_json)
 end
 
 post "/accounts/parents/new" do
@@ -99,10 +95,10 @@ post "/accounts/parents/new" do
     return error(403, "account already created")
   end
 
-  child = Parent.new_(device, name)
-  child.save
-  response_json = child.as_json
-  success(201, response_json)
+  parent = Parent.new_(device, name)
+  parent.save
+  
+  success(201, parent.as_json)
 end
 
 def success(statusCode, response = {})

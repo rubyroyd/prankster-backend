@@ -12,7 +12,8 @@ class Device < ActiveRecord::Base
   end
 
   def as_json(*)
-    super.except("created_at", "id")
+    super(except: [:account_id, :created_at, :id],
+      include: { account: {only: :id, methods: :type}})
   end
 end
 
@@ -21,18 +22,18 @@ class Account < ActiveRecord::Base
   has_one :parent
   has_one :child
 
-  def account_type?
+  def type
     if parent
       return "parent"
     elsif child
       return "child"
+    else
+      return null
     end
   end
 
   def as_json(*)
-    super.except("created_at", "child_id", "parent_id").tap do |hash|
-      hash["account_type"] = account_type?
-    end
+    super(except: [:created_at, :child_id, :parent_id], methods: :type)
   end
 end
 
