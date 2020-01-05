@@ -5,7 +5,6 @@ require "./app_ext.rb"
 before do
   content_type :json
 end
-
 not_found do
   status 404
   erb :not_found
@@ -101,22 +100,24 @@ post "/accounts/parents/new" do
   success(201, parent.as_json)
 end
 
-post "/accounts/parents/assignchild" do
+get "/accounts/parents/:id" do
+  parent_id = params[:id].to_i
   token = params[:token]
-  name = params[:name]
   device = Device.find_by(token: token)
   if !device
     return error(401, "unauthorised")
   end
 
-  if device.account
-    return error(403, "account already created")
+  parent=device.account&.parent
+  if !device.account&.parent
+    return error(403, "device doesn't have account")
   end
 
-  parent = Parent.new_(device, name)
-  parent.save
-  
-  success(201, parent.as_json)
+  if parent.account.id != parent_id
+    return error(403, "no access to this parent")
+  end
+
+  success(200, parent.as_json)
 end
 
 def success(statusCode, response = {})
