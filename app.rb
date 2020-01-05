@@ -109,13 +109,47 @@ get "/accounts/parents/:id" do
   end
 
   parent=device.account&.parent
-  if !device.account&.parent
+  if !parent
     return error(403, "device doesn't have account")
   end
 
   if parent.account.id != parent_id
     return error(403, "no access to this parent")
   end
+
+  success(200, parent.as_json)
+end
+post "/accounts/parents/:id/assign_child" do
+  parent_id = params[:id].to_i
+  child_id = params[:child_id].to_i
+  token = params[:token]
+  device = Device.find_by(token: token)
+  if !device
+    return error(401, "unauthorised")
+  end
+
+  parent=device.account&.parent
+  if !parent
+    return error(403, "device doesn't have account")
+  end
+
+  if parent.account.id != parent_id
+    return error(403, "no access to this parent")
+  end
+
+  child = Account.find_by(id: child_id).child
+  if !child
+    return error(403, "no child found for this id")
+  end
+
+  if child.parent_id
+    return error(403, "child already assigned")
+  end
+
+  child.parent_id = parent.id
+  child.save
+  parent.child_id = child.id
+  parent.save
 
   success(200, parent.as_json)
 end
