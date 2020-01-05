@@ -56,10 +56,9 @@ class Parent < ActiveRecord::Base
   end
 
   def as_json(*)
-    super.except("created_at", "id").tap do |hash|
-      hash["account_id"] = account.id
-      hash["name"] = account.name
-    end
+    result = super(except: [:id, :created_at, :child_id, :region_id], include: :child)
+    result["name"] = account.name
+    result
   end
 end
 
@@ -84,10 +83,9 @@ class Child < ActiveRecord::Base
   end
 
   def as_json(*)
-    super.except("created_at", "id").tap do |hash|
-      hash["account_id"] = account.id
-      hash["name"] = account.name
-    end
+    result = super(except: [:id, :created_at, :parent_id, :region_id], include: :parent)
+    result["name"] = account.name
+    result
   end
 end
 
