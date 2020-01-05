@@ -64,7 +64,7 @@ post "/authorise" do
   
   response_json = device.as_json
   response_json["account_id"] = device.account&.id
-  response_json["account_type"] = device.account&.account_type
+  response_json["account_type"] = device.account&.account_type?
 
   return success(200, response_json)
 end
