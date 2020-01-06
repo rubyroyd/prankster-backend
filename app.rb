@@ -154,6 +154,26 @@ post "/accounts/parents/:id/assign_child" do
   success(200, parent.as_json)
 end
 
+get "/accounts/children/:id" do
+  child_id = params[:id].to_i
+  token = params[:token]
+  device = Device.find_by(token: token)
+  if !device
+    return error(401, "unauthorised")
+  end
+
+  child=device.account&.child
+  if !child
+    return error(403, "device doesn't have account")
+  end
+
+  if child.account.id != child_id
+    return error(403, "no access to this child")
+  end
+
+  success(200, child.as_json)
+end
+
 def success(statusCode, response = {})
   result = {"status" => "ok"}
   result["response"] = response
