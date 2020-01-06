@@ -56,7 +56,7 @@ class Parent < ActiveRecord::Base
   end
 
   def as_json(*)
-    result = super(except: [:created_at, :region_id], include: :child)
+    result = super(except: [:child_id, :created_at, :region_id], include: :child)
     result[:name] = account.name
     result
   end
@@ -83,7 +83,7 @@ class Child < ActiveRecord::Base
   end
 
   def as_json(*)
-    result = super(except: [:created_at, :region_id], include: :parent)
+    result = super(except: [:parent_id, :created_at, :region_id, :region_status_id, :region_setting_id], include: :parent)
     result[:name] = account.name
     result
   end
