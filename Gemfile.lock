@@ -21,7 +21,7 @@ GEM
     pg (1.2.0)
     postgresql (1.0.0)
       pg
-    rack (2.0.8)
+    rack (2.1.4)
     rack-protection (2.0.7)
       rack
     rake (13.0.1)
